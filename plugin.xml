@@ -15,23 +15,23 @@
     </engines>
 
     <platform name="android">
-        <hook type="after_plugin_install" src="scripts/android/after_plugin_install.js"/>
-        <hook type="before_plugin_uninstall" src="scripts/android/before_plugin_uninstall.js"/>
-
         <js-module name="FirebasePlugin" src="www/firebase.js">
             <clobbers target="FirebasePlugin"/>
         </js-module>
+
         <config-file parent="/*" target="res/xml/config.xml">
             <feature name="FirebasePlugin">
                 <param name="android-package" value="org.apache.cordova.firebase.FirebasePlugin"/>
                 <param name="onload" value="true"/>
             </feature>
         </config-file>
+
         <config-file target="AndroidManifest.xml" parent="/*">
             <uses-permission android:name="android.permission.INTERNET"/>
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
             <uses-permission android:name="android.permission.WAKE_LOCK"/>
         </config-file>
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <service android:enabled="true" android:exported="false"
                      android:name="com.google.android.gms.measurement.AppMeasurementService"/>
