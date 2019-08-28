@@ -38,8 +38,7 @@
                 </intent-filter>
             </service>
             <receiver android:name="org.apache.cordova.firebase.OnNotificationOpenReceiver"></receiver>
-        </config-file>
-        <resource-file src="src/android/google-services.json" target="."/>
+        </config-file>        
         <resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml"/>
         <source-file src="src/android/FirebasePlugin.java" target-dir="src/org/apache/cordova/firebase"/>
         <source-file src="src/android/OnNotificationOpenReceiver.java" target-dir="src/org/apache/cordova/firebase"/>
@@ -47,15 +46,16 @@
         <source-file src="src/android/FirebasePluginMessageReceiver.java" target-dir="src/org/apache/cordova/firebase"/>
         <source-file src="src/android/FirebasePluginMessageReceiverManager.java" target-dir="src/org/apache/cordova/firebase"/>
         <source-file src="src/android/JavaScriptException.java" target-dir="src/org/apache/cordova/firebase"/>
+		<source-file src="src/android/AmSmartAndroidNotificationChannelFactory.java" target-dir="src/biz/amsmart/cordova/plugin/android/notification" />
         <source-file src="src/android/colors.xml" target-dir="res/values"/>
 
         <framework src="src/android/build.gradle" custom="true" type="gradleReference"/>
-        <framework src="com.google.android.gms:play-services-tagmanager:16.+"/>
-        <framework src="com.google.firebase:firebase-auth:18.+"/>
-        <framework src="com.google.firebase:firebase-core:17.+"/>
-        <framework src="com.google.firebase:firebase-messaging:19.+"/>
-        <framework src="com.google.firebase:firebase-config:18.+"/>
-        <framework src="com.google.firebase:firebase-perf:18.+"/>
+        <framework src="com.google.android.gms:play-services-tagmanager:16.0.8"/>
+        <framework src="com.google.firebase:firebase-auth:18.1.0"/>
+        <framework src="com.google.firebase:firebase-core:17.1.0"/>
+        <framework src="com.google.firebase:firebase-messaging:19.0.1"/>
+        <framework src="com.google.firebase:firebase-config:18.0.0"/>
+        <framework src="com.google.firebase:firebase-perf:18.0.1"/>
     </platform>
 
     <platform name="ios">

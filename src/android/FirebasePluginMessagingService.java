@@ -9,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 import android.app.Notification;
 import android.text.TextUtils;
@@ -22,9 +23,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import biz.amsmart.cordova.plugin.android.notification.AmSmartAndroidNotificationChannelFactory;
+
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+
+        final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        AmSmartAndroidNotificationChannelFactory
+            .create(notificationManager, getPackageName())
+            .initializeDefaultChannel()
+            .initializeAlarmChannel();
+    }
 
     /**
      * Get a string from resources without importing the .R package
@@ -94,11 +109,15 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             title = remoteMessage.getNotification().getTitle();
             text = remoteMessage.getNotification().getBody();
             id = remoteMessage.getMessageId();
-        } else if (data != null) {
-            title = data.get("title");
-            text = data.get("text");
-            id = data.get("id");
-            sound = data.get("sound");
+            sound = remoteMessage.getNotification().getSound();
+        }
+
+        if (data != null) {
+            title = !"".equals(title) ? title : data.get("title");
+            text = !"".equals(text) ? text : data.get("text");
+            id = !"".equals(id) ? id : data.get("id");
+            sound = !"".equals(sound) ? sound : data.get("sound");
+
             lights = data.get("lights"); //String containing hex ARGB color, miliseconds on, miliseconds off, example: '#FFFF00FF,1000,3000'
 
             if (TextUtils.isEmpty(text)) {
@@ -138,8 +157,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             String channelId = this.getStringResource("default_notification_channel_id");
-            String channelName = this.getStringResource("default_notification_channel_name");
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+            // TODO: push should contain the channelID or an event Severity in the future
+            if("alarm".equals(sound)){
+                channelId = AmSmartAndroidNotificationChannelFactory.CHANNEL_ID_ALARM;
+            }
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             notificationBuilder
@@ -196,30 +219,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     notification.contentView.setImageViewResource(iconID, notiID);
                 }
             }
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            // Since android Oreo notification channel is needed.
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                List<NotificationChannel> channels = notificationManager.getNotificationChannels();
-
-                boolean channelExists = false;
-                for (int i = 0; i < channels.size(); i++) {
-                    if (channelId.equals(channels.get(i).getId())) {
-                        channelExists = true;
-                    }
-                }
-
-                if (!channelExists) {
-                    NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
-                    channel.enableLights(true);
-                    channel.enableVibration(true);
-                    channel.setShowBadge(true);
-                    if (lights != null) {
-                        channel.setLightColor(lightArgb);
-                    }
-                    notificationManager.createNotificationChannel(channel);
-                }
-            }
+            final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
             notificationManager.notify(id.hashCode(), notification);
         } else {
